@@ -1,39 +1,55 @@
+const chatBox = document.getElementById("chat-box");
+const mainDiv = document.getElementsByTagName("main")[0];
 const infoDiv = document.getElementsByClassName("info")[0];
+const userInput = document.getElementById("user-input");
+const sendButton = document.getElementById("send-button");
 
-document.getElementById('send-button').addEventListener('click',  function() {
-    infoDiv.innerHTML = "";
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    askQuestion();
+  }
+});
 
-const userInput = document.getElementById('user-input');
-const userText = userInput.value;
+sendButton.addEventListener("click", () => {
+  askQuestion();
+});
 
-if (userText.trim() === "") {
-return; // Impede o envio de mensagens vazias 
+function askQuestion() {
+  const userText = userInput.value;
+
+  if (userText.trim() === "") {
+    return; // Impede o envio de mensagens vazias
+  }
+
+  chatBox.classList.add("message");
+  mainDiv.style.gridTemplateRows = "auto 1fr";
+  infoDiv.innerHTML = "";
+
+  addMessage(userText, "user");
+  userInput.value = "";
+
+  // Resposta da API
+  getBotResponse(userText).then((response) => {
+    addMessage(response, "bot");
+  });
 }
-
-addMessage(userText, 'user');
-userInput.value = '';
-
-// Resposta da API
-const botResponse = getBotResponse(userText).then(() => {
-addMessage(botResponse, 'bot');
-});
-});
 
 function addMessage(text, sender) {
-const chatBox = document.getElementById('chat-box');
-const messageElement = document.createElement('div');
-messageElement.classList.add('message', sender);
-messageElement.textContent = text;
-chatBox.appendChild(messageElement);
-chatBox.scrollTop = chatBox.scrollHeight; // Role para a parte inferior
+  const messageElement = document.createElement("div");
+
+  messageElement.classList.add("message", sender);
+  messageElement.innerHTML = marked.parse(text);
+  chatBox.appendChild(messageElement);
+  chatBox.scrollTop = chatBox.scrollHeight; // Role para a parte inferior
 }
 
-const url = "https://askscience-776890342339.southamerica-east1.run.app/question?q="
+const url = "https://askscience-776890342339.southamerica-east1.run.app/question?q=";
 
 async function getBotResponse(userInput) {
-   const data = await fetch(url + userInput).then(res => res.json());
+  userInput = encodeURIComponent(userInput);
+  const data = await fetch(url + userInput).then((res) => res.json());
 
-   console.log(data)
+  console.log(data);
 
-   return data.summary;
+  return data.content;
 }
