@@ -53,3 +53,6 @@ async function getBotResponse(userInput) {
 
   return data.content;
 }
+function reloadPage(){
+  location.reload();
+}
